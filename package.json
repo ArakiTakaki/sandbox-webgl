@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "start": "parcel ./src/index.html"
+  },
+  "devDependencies": {
+    "parcel": "^1.12.3",
+    "sass": "^1.19.0",
+    "typescript": "^3.4.5",
+    "dat.gui": "^0.7.6"
+  },
+  "dependencies": {
+    "@types/dat.gui": "^0.7.2",
+    "normalize.css": "^8.0.1",
+    "reset-css": "^4.0.1"
+  }
+}
