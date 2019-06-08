@@ -1,7 +1,6 @@
 import Matrix from '../util/Matrix';
 
 export interface IGLAttributeSetting {
-  index: number;
   name: string;
   data: number[];
   size: number;

@@ -45,11 +45,10 @@ export default () => {
         0.0, 1.0, 0.0, 1.0,
         0.0, 0.0, 1.0, 1.0,
       ],
-      index: GlClass.gl.getAttribLocation(program, 'color'),
       size: 4,
     },
     {
-      name: 'triangle',
+      name: 'position',
       data: [
         0.0, 1.0, 0.0,
         1.0, -1.0, 0.0,
@@ -65,14 +64,14 @@ export default () => {
         new Matrix().scale(-70, -70),
         new Matrix().scale(-80, -80),
       ],
-      index: GlClass.gl.getAttribLocation(program, 'position'),
       size: 3,
     },
   ];
 
   const uniLocation = GlClass.gl.getUniformLocation(program, 'mvpMatrix');
   attribSettingList.forEach(setting => {
-    GlClass.setAttribute(setting);
+    const index = GlClass.gl.getAttribLocation(program, setting.name);
+    GlClass.setAttribute(setting, index);
   });
 
   attribSettingList.forEach(setting => {

@@ -52,8 +52,8 @@ export default class WebGLClass {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT || this.gl.DEPTH_BUFFER_BIT);
   }
 
-  public setAttribute(object: IGLAttributeSetting) {
-    const { data, index, size } = object;
+  public setAttribute(object: IGLAttributeSetting, index: number) {
+    const { data, size } = object;
     const vbo = this.createVBO(data);
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
     this.gl.enableVertexAttribArray(index);
