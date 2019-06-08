@@ -1,0 +1,21 @@
+plugins:
+  - '@typescript-eslint'
+parser: '@typescript-eslint/parser'
+globals:
+  modules: true
+env:
+  es6: true
+  browser: true
+rules:
+  # NOMAL TYPESCRIPT
+  # =========== ERRORS ===========
+  prefer-template: error # 文字列結合よりテンプレートリテラルを推奨する
+
+  # =========== WARNINGS ===========
+  no-console: 'warn'                            # コンソールログに対して警告を促す
+  newline-before-return: 'warn'                 # returnの前に改行を強制
+  no-unused-vars: 'warn'
+  typescript-eslint/no-unused-vars: 'warn'
+
+extends:
+  - 'airbnb-typescript'
