@@ -1,43 +1,11 @@
-import Errors from './Errors';
-import Matrix from './Matrix';
+import Errors from '../util/Errors';
+import { IGLAttributeSetting } from '../constants/interfaces';
 
-const vSource = `
-attribute vec3 position;
-attribute vec4 color;
-uniform   mat4 mvpMatrix;
-varying   vec4 vColor;
-
-void main(void){
-    vColor = color;
-    gl_Position = mvpMatrix * vec4(position, 1.0);
-}
-`;
-// const rgba = [0.0, 0.0, 0.0, 1.0]; // Red, Green, Blue, Alpha
-const fSource = `
-precision mediump float;
-
-varying vec4 vColor;
-
-void main(void) {
-  gl_FragColor = vColor;
-}
-`;
-
-const renderingVector = 3;
-const vertexColorV = 4;
-const vertexColor = [
-  1.0, 0.0, 0.0, 1.0,
-  0.0, 1.0, 0.0, 1.0,
-  0.0, 0.0, 1.0, 1.0,
-];
-
-/**
- * WebGLをラップ下クラス
- */
 interface ICacheShader {
   id: string;
   shader: WebGLShader;
 }
+
 export default class WebGLClass {
   element: HTMLCanvasElement;
 
@@ -84,49 +52,22 @@ export default class WebGLClass {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT || this.gl.DEPTH_BUFFER_BIT);
   }
 
-  public render(data: number[]) {
-    const vertex = this.createShader(vSource, 'v', 'vertex');
-    const fragment = this.createShader(fSource, 'f', 'fragment');
+  public setAttribute(object: IGLAttributeSetting) {
+    const { data, index, size } = object;
+    const vbo = this.createVBO(data);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
+    this.gl.enableVertexAttribArray(index);
+    this.gl.vertexAttribPointer(index, size, this.gl.FLOAT, false, 0, 0);
+  }
 
-    const program = this.createProgram(vertex, fragment);
-
-    const attLocation: number[] = [];
-    attLocation[0] = this.gl.getAttribLocation(program, 'position');
-    attLocation[1] = this.gl.getAttribLocation(program, 'color');
-
-    // position
-    const vboPosition = this.createVBO(data);
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vboPosition);
-    this.gl.enableVertexAttribArray(attLocation[0]);
-    this.gl.vertexAttribPointer(attLocation[0], renderingVector, this.gl.FLOAT, false, 0, 0);
-
-    // color
-    const vboColor = this.createVBO(vertexColor);
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vboColor);
-    this.gl.enableVertexAttribArray(attLocation[1]);
-    this.gl.vertexAttribPointer(attLocation[1], vertexColorV, this.gl.FLOAT, false, 0, 0);
-
-    const uniLocation = this.gl.getUniformLocation(program, 'mvpMatrix');
-    // eslint-disable-next-line max-len
-    // TODO: Matrixを可変させるようにする。
-    // -> ライブラリとか策定しなきゃいけないかも
-    const matrix = new Matrix();
-
-    // 1描画
-    matrix.scale(50, 50);
-    matrix.translate('px', 0, 150);
-    this.gl.uniformMatrix4fv(uniLocation, false, matrix.create());
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, data.length / renderingVector);
-
-    // 2描画
-    matrix.translate('present', 25, -25);
-    this.gl.uniformMatrix4fv(uniLocation, false, matrix.create());
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, data.length / renderingVector);
-
-    // 3描画
-    matrix.translate('present', -25, -25);
-    this.gl.uniformMatrix4fv(uniLocation, false, matrix.create());
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, data.length / renderingVector);
+  public drawObject(
+    uniLocation: WebGLUniformLocation | null,
+    location: Float32Array,
+    dataLength: number,
+    size: number,
+  ) {
+    this.gl.uniformMatrix4fv(uniLocation, false, location);
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, dataLength / size);
   }
 
   public flush() {

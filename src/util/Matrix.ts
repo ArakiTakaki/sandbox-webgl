@@ -31,23 +31,27 @@ export default class Matrix {
   translate(type: 'present' | 'px', x: number = 0, y: number = 0, z: number = 0) {
     switch (type) {
       case 'present':
-        this.initState[12] = x / 100 * 2;
-        this.initState[13] = y / 100 * 2;
-        this.initState[14] = z / 100 * 2;
+        this.initState[12] += x / 100 * 2;
+        this.initState[13] += y / 100 * 2;
+        this.initState[14] += z / 100 * 2;
         break;
       case 'px':
-        this.initState[12] = x / Matrix.GLWidth * 2;
-        this.initState[13] = y / Matrix.GLHeight * 2;
-        this.initState[14] = z / 100 * 2;
+        this.initState[12] += x / Matrix.GLWidth * 2;
+        this.initState[13] += y / Matrix.GLHeight * 2;
+        this.initState[14] += z / 100 * 2;
         break;
       default:
         break;
     }
+
+    return this;
   }
 
   scale(x: number = 0, y: number = 0) {
-    this.initState[0] = x / 100;
-    this.initState[5] = y / 100;
+    this.initState[0] += x / 100;
+    this.initState[5] += y / 100;
+
+    return this;
   }
 
   public create() {
