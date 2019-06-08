@@ -1,28 +1,21 @@
 import Errors from './Errors';
+import Matrix from './Matrix';
 
 const vSource = `
-    precision mediump float;
-    attribute vec2 vertex;
-    void main(void) {
-        gl_Position = vec4(vertex, 0.0, 1.0);
-    }
+attribute vec3 position;
+uniform   mat4 mvpMatrix;
+
+void main(void){
+    gl_Position = mvpMatrix * vec4(position, 1.0);
+}
 `;
-const rgba = [0.0, 0.0, 0.0, 1.0]; // Red, Green, Blue, Alpha
+// const rgba = [0.0, 0.0, 0.0, 1.0]; // Red, Green, Blue, Alpha
 const fSource = `
-    precision mediump float;
-    void main(void) {
-        gl_FragColor = vec4( ${rgba.join(',')} );
-    }
+void main(void) {
+  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+}
 `;
 
-// const rgba2 = [0.0, 0.0, 0.0, 0.01]; // Red, Green, Blue, Alpha
-// const fSource2 = `
-//     precision mediump float;
-//     void main(void) {
-//         gl_FragColor = vec4( ${rgba.join(',')} );
-//     }
-// `;
-console.log('sample');
 /**
  * WebGLをラップ下クラス
  */
@@ -33,18 +26,31 @@ interface ICacheShader {
 export default class WebGLClass {
   element: HTMLCanvasElement;
 
+  /* WebGLのメインコンポーネント */
   gl: WebGLRenderingContext;
 
+  /* 幅 */
   glWidth: number;
 
+  /* 高さ */
   glHeight: number;
+
+  /* ベクトル数 */
+  globalVector: number;
 
   private shaderList: ICacheShader[] = [];
 
-  public constructor(width: number, height: number, id: string) {
+  /**
+   * webglをコントロールするクラス
+   * @param width - width
+   * @param height - height
+   * @param id - canvas id
+   */
+  public constructor(width: number, height: number, id: string, vector: number) {
     const canvas = document.createElement('canvas');
     this.glWidth = width;
     this.glHeight = height;
+    this.globalVector = vector;
     canvas.setAttribute('width', String(width));
     canvas.setAttribute('height', String(height));
     canvas.setAttribute('id', id);
@@ -57,16 +63,35 @@ export default class WebGLClass {
     if (webgl == null) {
       throw new Error('webgl error');
     }
-    webgl.viewport(0, 0, width, height);
     this.gl = webgl;
-    this.gl.clearColor(1.0, 0.0, 0.0, 1.0);
   }
 
-  public renderingBought(path: number[], isFill: boolean = false) {
-    const fillAction = isFill ? this.gl.TRIANGLE_STRIP : this.gl.LINE_STRIP;
-    this.gl.vertexAttribPointer(this.getVertex(), 3, this.gl.FLOAT, false, 0, 0);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(path), this.gl.DYNAMIC_DRAW);
-    this.gl.drawArrays(fillAction, 0, path.length / 3);
+  public init() {
+    this.gl.viewport(0, 0, this.glWidth, this.glHeight);
+    this.gl.clearColor(0.5, 0.2, 0.5, 1.0);
+    this.gl.clearDepth(1.0);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT || this.gl.DEPTH_BUFFER_BIT);
+  }
+
+  public render(data: number[]) {
+    const vertex = this.createShader(vSource, 'v', 'vertex');
+    const fragment = this.createShader(fSource, 'f', 'fragment');
+
+    const program = this.createProgram(vertex, fragment);
+
+    const attLocation = this.gl.getAttribLocation(program, 'position');
+
+    const vbo = this.createVBO(data);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
+
+    this.gl.enableVertexAttribArray(attLocation);
+    this.gl.vertexAttribPointer(attLocation, this.globalVector, this.gl.FLOAT, false, 0, 0);
+
+    const uniLocation = this.gl.getUniformLocation(program, 'mvpMatrix');
+    // eslint-disable-next-line max-len
+    this.gl.uniformMatrix4fv(uniLocation, false, new Float32Array(Matrix.initState));
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+    this.gl.flush();
   }
 
   public createShader(vertexSource: string, id: string, type: 'vertex' | 'fragment'): WebGLShader {
@@ -123,7 +148,11 @@ export default class WebGLClass {
   }
 
   // TODO: WebGLに登録できるバッファは一つまで(らしい)
-  public createBuffer(data: number[]) {
+  /**
+   * buffer
+   * @param data
+   */
+  public createVBO(data: number[]) {
     const vbo = this.gl.createBuffer();
     if (vbo == null) {
       throw Errors.nullPointer('null pointer exception to ');
@@ -134,6 +163,13 @@ export default class WebGLClass {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
     return vbo;
+  }
+
+  public renderingBought(path: number[], isFill: boolean = false) {
+    const fillAction = isFill ? this.gl.TRIANGLE_STRIP : this.gl.LINE_STRIP;
+    this.gl.vertexAttribPointer(this.getVertex(), this.globalVector, this.gl.FLOAT, false, 0, 0);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(path), this.gl.DYNAMIC_DRAW);
+    this.gl.drawArrays(fillAction, 0, path.length / this.globalVector);
   }
 
   private getVertex(): number {
@@ -151,8 +187,3 @@ export default class WebGLClass {
     return vertex;
   }
 }
-
-/**
- * memo
- * シェーダにはIDが振られており、シェーダ
- */
