@@ -3,18 +3,33 @@ import Matrix from './Matrix';
 
 const vSource = `
 attribute vec3 position;
+attribute vec4 color;
 uniform   mat4 mvpMatrix;
+varying   vec4 vColor;
 
 void main(void){
+    vColor = color;
     gl_Position = mvpMatrix * vec4(position, 1.0);
 }
 `;
 // const rgba = [0.0, 0.0, 0.0, 1.0]; // Red, Green, Blue, Alpha
 const fSource = `
+precision mediump float;
+
+varying vec4 vColor;
+
 void main(void) {
-  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+  gl_FragColor = vColor;
 }
 `;
+
+const renderingVector = 3;
+const vertexColorV = 4;
+const vertexColor = [
+  1.0, 0.0, 0.0, 1.0,
+  0.0, 1.0, 0.0, 1.0,
+  0.0, 0.0, 1.0, 1.0,
+];
 
 /**
  * WebGLをラップ下クラス
@@ -35,9 +50,6 @@ export default class WebGLClass {
   /* 高さ */
   glHeight: number;
 
-  /* ベクトル数 */
-  globalVector: number;
-
   private shaderList: ICacheShader[] = [];
 
   /**
@@ -46,11 +58,10 @@ export default class WebGLClass {
    * @param height - height
    * @param id - canvas id
    */
-  public constructor(width: number, height: number, id: string, vector: number) {
+  public constructor(width: number, height: number, id: string) {
     const canvas = document.createElement('canvas');
     this.glWidth = width;
     this.glHeight = height;
-    this.globalVector = vector;
     canvas.setAttribute('width', String(width));
     canvas.setAttribute('height', String(height));
     canvas.setAttribute('id', id);
@@ -79,18 +90,46 @@ export default class WebGLClass {
 
     const program = this.createProgram(vertex, fragment);
 
-    const attLocation = this.gl.getAttribLocation(program, 'position');
+    const attLocation: number[] = [];
+    attLocation[0] = this.gl.getAttribLocation(program, 'position');
+    attLocation[1] = this.gl.getAttribLocation(program, 'color');
 
-    const vbo = this.createVBO(data);
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
+    // position
+    const vboPosition = this.createVBO(data);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vboPosition);
+    this.gl.enableVertexAttribArray(attLocation[0]);
+    this.gl.vertexAttribPointer(attLocation[0], renderingVector, this.gl.FLOAT, false, 0, 0);
 
-    this.gl.enableVertexAttribArray(attLocation);
-    this.gl.vertexAttribPointer(attLocation, this.globalVector, this.gl.FLOAT, false, 0, 0);
+    // color
+    const vboColor = this.createVBO(vertexColor);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vboColor);
+    this.gl.enableVertexAttribArray(attLocation[1]);
+    this.gl.vertexAttribPointer(attLocation[1], vertexColorV, this.gl.FLOAT, false, 0, 0);
 
     const uniLocation = this.gl.getUniformLocation(program, 'mvpMatrix');
     // eslint-disable-next-line max-len
-    this.gl.uniformMatrix4fv(uniLocation, false, new Float32Array(Matrix.initState));
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+    // TODO: Matrixを可変させるようにする。
+    // -> ライブラリとか策定しなきゃいけないかも
+    const matrix = new Matrix();
+
+    // 1描画
+    matrix.scale(50, 50);
+    matrix.translate('px', 0, 150);
+    this.gl.uniformMatrix4fv(uniLocation, false, matrix.create());
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, data.length / renderingVector);
+
+    // 2描画
+    matrix.translate('present', 25, -25);
+    this.gl.uniformMatrix4fv(uniLocation, false, matrix.create());
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, data.length / renderingVector);
+
+    // 3描画
+    matrix.translate('present', -25, -25);
+    this.gl.uniformMatrix4fv(uniLocation, false, matrix.create());
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, data.length / renderingVector);
+  }
+
+  public flush() {
     this.gl.flush();
   }
 
@@ -163,27 +202,5 @@ export default class WebGLClass {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
     return vbo;
-  }
-
-  public renderingBought(path: number[], isFill: boolean = false) {
-    const fillAction = isFill ? this.gl.TRIANGLE_STRIP : this.gl.LINE_STRIP;
-    this.gl.vertexAttribPointer(this.getVertex(), this.globalVector, this.gl.FLOAT, false, 0, 0);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(path), this.gl.DYNAMIC_DRAW);
-    this.gl.drawArrays(fillAction, 0, path.length / this.globalVector);
-  }
-
-  private getVertex(): number {
-    const buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
-
-    const vShader = this.createShader(vSource, 'v-sample', 'vertex');
-    const fShader = this.createShader(fSource, 'h-sample', 'fragment');
-
-    const program = this.createProgram(vShader, fShader);
-
-    const vertex = this.gl.getAttribLocation(program, 'vertex');
-    this.gl.enableVertexAttribArray(vertex);
-
-    return vertex;
   }
 }

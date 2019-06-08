@@ -1,13 +1,29 @@
 import WebGLClass from './util/WebGLClass';
 import Matrix from './util/Matrix';
 
-const mtx = new Matrix(600, 600);
-const gl2 = new WebGLClass(600, 600, 'sample', 3);
+const width = 600;
+const height = 600;
+
+Matrix.setWidth(width);
+Matrix.setHeight(height);
+
+const gl2 = new WebGLClass(width, height, 'sample');
 gl2.init();
-console.log(mtx.square(300, 300));
-// gl2.render(mtx.square(300, 300));
+
 gl2.render([
   0.0, 1.0, 0.0,
-  1.0, 0.0, 0.0,
-  -1.0, 0.0, 0.0,
+  1.0, -1.0, 0.0,
+  -1.0, -1.0, 0.0,
 ]);
+gl2.flush();
+
+// let i = 0.01;
+// setInterval(() => {
+//   i += 0.01;
+//   gl2.render([
+//     -0.5, i, 0.0,
+//     -1.0, -0.9, 0.0,
+//     i, -0.9, 0.0,
+//   ]);
+//   gl2.flush();
+// }, 25);

@@ -5,32 +5,52 @@ type ITriangle = [IVec3, IVec3, IVec3];
 
 // 拡大縮小 回転 移動
 export default class Matrix {
-  GLWidth: number;
+  static GLWidth: number;
 
-  GLHeight: number;
+  static GLHeight: number;
 
-  public static initState = [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    1, 0, 0, 1,
-    0, 0, 0, 1,
-  ] as const;
-
-  constructor(width: number, heigth: number) {
-    this.GLHeight = heigth;
-    this.GLWidth = width;
+  static setWidth(width: number) {
+    Matrix.GLWidth = width;
   }
 
-  public square(width: number, height: number): number[] {
-    return [
-      (height / this.GLHeight), (width / this.GLWidth), 0,
-      (-height / this.GLHeight), (width / this.GLWidth), 0,
-      (-height / this.GLHeight), (-width / this.GLWidth), 0,
-      (height / this.GLHeight), (-width / this.GLWidth), 0,
+  static setHeight(height: number) {
+    Matrix.GLHeight = height;
+  }
+
+  initState: number[];
+
+  constructor() {
+    this.initState = [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1,
     ];
   }
 
-  //   public circle(x:number, y:number, asset: number): number[] {
-  //     return [Math.sin(x / asset), Math.cos(y / asset), 0];
-  //   }
+  translate(type: 'present' | 'px', x: number = 0, y: number = 0, z: number = 0) {
+    switch (type) {
+      case 'present':
+        this.initState[12] = x / 100 * 2;
+        this.initState[13] = y / 100 * 2;
+        this.initState[14] = z / 100 * 2;
+        break;
+      case 'px':
+        this.initState[12] = x / Matrix.GLWidth * 2;
+        this.initState[13] = y / Matrix.GLHeight * 2;
+        this.initState[14] = z / 100 * 2;
+        break;
+      default:
+        break;
+    }
+  }
+
+  scale(x: number = 0, y: number = 0) {
+    this.initState[0] = x / 100;
+    this.initState[5] = y / 100;
+  }
+
+  public create() {
+    return new Float32Array(this.initState);
+  }
 }
