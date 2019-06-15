@@ -1,17 +1,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-bitwise */
 import Errors from '../util/Errors';
-import { IRenderObjectSetting } from '../constants/interfaces';
+import {
+  IRenderObjectSetting, BUFFER_TYPE, SHADER_TYPE, UNIFORM_TYPE,
+} from '../constants/interfaces';
 
-export enum BUFFER_TYPE {
-  VBO = 'vbo',
-  IBO = 'ibo',
-}
-
-export enum SHADER_TYPE {
-  VERTEX = 'vertex',
-  FRAGMENT = 'fragment',
-}
 
 interface ICacheShader {
   id: string;
@@ -28,6 +21,11 @@ interface IAttribLocation {
   location: number;
 }
 
+interface IUniLocationList {
+  id: string;
+  uniLocation: WebGLUniformLocation;
+}
+
 export default class WebGLClass {
   element: HTMLCanvasElement;
 
@@ -42,13 +40,13 @@ export default class WebGLClass {
 
   program: WebGLProgram | null = null;
 
-  uniLocation: WebGLUniformLocation | null = null;
-
   shaderList: ICacheShader[] = [];
 
   bufferList: ICacheBuffer[] = [];
 
   attrLocationList: IAttribLocation[] = [];
+
+  uniLocationList: IUniLocationList[] = [];
 
   /**
    * webglをコントロールするクラス
@@ -78,7 +76,7 @@ export default class WebGLClass {
     // this.gl.enable(this.gl.CULL_FACE);
     // 深度テストの有効化
     this.gl.enable(this.gl.DEPTH_TEST);
-    this.gl.enable(this.gl.LEQUAL);
+    // this.gl.enable(this.gl.LEQUAL);
   }
 
   /* ライフサイクル */
@@ -131,18 +129,25 @@ export default class WebGLClass {
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, iboBuffer);
   }
 
-  public createUniformPhase(uniformLocationName: string) {
+  public createUniformPhase(setting: IRenderObjectSetting) {
     if (this.program == null) {
       throw Error('not found program');
     }
-    const uniLocation = this.gl.getUniformLocation(this.program, uniformLocationName);
-    if (uniLocation == null) {
-      throw Error('unilocation notfound');
+    const { uniLocations } = setting;
+    for (let i = 0; i < uniLocations.length; i += 1) {
+      const { name } = uniLocations[i];
+
+      const tmp = this.findUniLocation(name);
+      if (tmp != null) return;
+
+      const uniLocation = this.gl.getUniformLocation(this.program, name);
+      if (uniLocation == null) throw Error('unilocation notfound');
+
+      this.addUniLocation(uniLocation, name);
     }
-    this.uniLocation = uniLocation;
   }
 
-  public initialRendering(setting :IRenderObjectSetting, uniform: string) {
+  public initialRendering(setting :IRenderObjectSetting, iboName: string) {
     this.gl.viewport(0, 0, this.glWidth, this.glHeight);
     // attrib取得
     this.attribLocationPhase(setting);
@@ -151,20 +156,29 @@ export default class WebGLClass {
     // VBO登録
     this.setAttributePhase(setting);
     // uniLocationの登録
-    this.createUniformPhase(uniform);
+    this.createUniformPhase(setting);
     // IBO生成と登録 関係ない
-    this.createIBOPhase(setting, 'iboSample');
+    this.createIBOPhase(setting, iboName);
   }
 
   public initialize() {
-    this.gl.clearColor(0.5, 0.2, 0.5, 1.0);
+    this.gl.clearColor(0.0, 0.0, 0.2, 1.0);
     this.gl.clearDepth(1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   }
 
+  public setLocation(location: WebGLUniformLocation, matrix: Float32List, type: UNIFORM_TYPE) {
+    if (type === UNIFORM_TYPE.FV4) {
+      this.gl.uniformMatrix4fv(location, false, matrix);
+      return;
+    }
+    if (type === UNIFORM_TYPE.FV3) {
+      this.gl.uniform3fv(location, matrix);
+    }
+  }
+
   /* レンダリングフェーズ */
-  public render(uniform: Float32Array, iboLength: number) {
-    this.uniform(uniform);
+  public render(iboLength: number) {
     this.drawObject(iboLength, 0, BUFFER_TYPE.IBO);
   }
   /* ライフサイクル */
@@ -173,10 +187,6 @@ export default class WebGLClass {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
     this.gl.enableVertexAttribArray(location);
     this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, 0, 0);
-  }
-
-  public uniform(location: Float32Array) {
-    this.gl.uniformMatrix4fv(this.uniLocation, false, location);
   }
 
   public drawObject(
@@ -213,6 +223,24 @@ export default class WebGLClass {
       return null;
     }
     return content.shader;
+  }
+
+  private addUniLocation(
+    uniLocation: WebGLUniformLocation,
+    id: string,
+  ) {
+    this.uniLocationList.push({
+      uniLocation,
+      id,
+    });
+  }
+
+  public findUniLocation(id: string): WebGLUniformLocation | null {
+    const content = this.uniLocationList.filter(item => item.id === id)[0];
+    if (content == null) {
+      return null;
+    }
+    return content.uniLocation;
   }
 
   private addBuffer(buffer: WebGLBuffer, id: string) {

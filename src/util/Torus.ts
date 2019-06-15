@@ -1,7 +1,8 @@
 export default (row: number, column: number, irad: number, orad: number) => {
-  const position = [];
-  const color = [];
-  const index = [];
+  const position: number[] = [];
+  const color: number[] = [];
+  const index: number[] = [];
+  const normal: number[] = [];
 
   for (let i = 0; i <= row; i += 1) {
     const r = Math.PI * 2 / row * i;
@@ -13,8 +14,11 @@ export default (row: number, column: number, irad: number, orad: number) => {
       const ty = ry * irad;
       const tz = (rr * irad + orad) * Math.sin(tr);
       position.push(tx, ty, tz);
+      const rx = rr * Math.cos(tr);
+      const rz = rr * Math.sin(tr);
       // const tc = hsvaカラー関数
-      color.push(tx, ty, tz, 1);
+      normal.push(rx, ry, rz);
+      color.push(1, 0.5, rr, 1);
     }
   }
   for (let i = 0; i < row; i += 1) {
@@ -27,6 +31,7 @@ export default (row: number, column: number, irad: number, orad: number) => {
   return {
     position,
     color,
+    normal,
     index,
   };
 };
