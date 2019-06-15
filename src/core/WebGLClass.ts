@@ -73,6 +73,12 @@ export default class WebGLClass {
       throw new Error('webgl error');
     }
     this.gl = webgl;
+
+    // // カリングの有効化
+    // this.gl.enable(this.gl.CULL_FACE);
+    // // 深度テストの有効化
+    // this.gl.enable(this.gl.DEPTH_TEST);
+    // this.gl.enable(this.gl.LEQUAL);
   }
 
   /* ライフサイクル */
@@ -88,6 +94,7 @@ export default class WebGLClass {
       if (attribLocation == null) {
         const value = this.gl.getAttribLocation(this.program, vbo[i].name);
         this.addAttrLocation(value, vbo[i].name);
+        console.log('attr', vbo[i].name);
       }
     }
   }
@@ -111,7 +118,7 @@ export default class WebGLClass {
       if (targetVBO == null || targetAttrib == null) {
         throw Errors.nullPointer('vbo or attrib');
       }
-      this.setAttribute(targetVBO, targetAttrib, vbo[i].size);
+      this.setAttribute(targetVBO, vbo[i].size, targetAttrib);
     }
   }
 
@@ -122,7 +129,6 @@ export default class WebGLClass {
     const { ibo } = setting;
     const iboBuffer = this.createBuffer(ibo, BUFFER_TYPE.IBO);
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, iboBuffer);
-    this.addBuffer(iboBuffer, iboName);
   }
 
   public createUniformPhase(uniformLocationName: string) {
@@ -144,10 +150,10 @@ export default class WebGLClass {
     this.createBufferPhase(setting);
     // VBO登録
     this.setAttributePhase(setting);
-    // IBO生成と登録
-    this.createIBOPhase(setting, 'iboSample');
     // uniLocationの登録
     this.createUniformPhase(uniform);
+    // IBO生成と登録 関係ない
+    this.createIBOPhase(setting, 'iboSample');
   }
 
   public initialize() {
@@ -158,22 +164,19 @@ export default class WebGLClass {
 
   /* レンダリングフェーズ */
   public render(uniform: Float32Array, iboLength: number) {
-    this.uniform(this.uniLocation, uniform);
+    this.uniform(uniform);
     this.drawObject(iboLength, 0, BUFFER_TYPE.IBO);
   }
   /* ライフサイクル */
 
-  public setAttribute(vbo: WebGLBuffer, location: number, size: number) {
+  public setAttribute(vbo: WebGLBuffer, size: number, location: number) {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
     this.gl.enableVertexAttribArray(location);
     this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, 0, 0);
   }
 
-  public uniform(
-    uniLocation: WebGLUniformLocation | null,
-    location: Float32Array,
-  ) {
-    this.gl.uniformMatrix4fv(uniLocation, false, location);
+  public uniform(location: Float32Array) {
+    this.gl.uniformMatrix4fv(this.uniLocation, false, location);
   }
 
   public drawObject(

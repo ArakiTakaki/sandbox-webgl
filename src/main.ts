@@ -1,38 +1,6 @@
-import { IRenderObjectSetting } from './constants/interfaces';
-import SquareRender from './util/SquareRender';
+// import SquareRender from './util/SquareRender';
 
-const setting: IRenderObjectSetting = {
-  vbo: [
-    {
-      name: 'position',
-      data: [
-        0.0, 1.0, 0.0,
-        1.0, 0.0, 0.0,
-        -1.0, 0.0, 0.0,
-        0.0, -1.0, -1.0,
-      ],
-      size: 3,
-    },
-    {
-      name: 'color',
-      data: [
-        1.0, 0.0, 0.0,
-        1.0, 1.0, 0.0,
-        1.0, 1.0, 0.0,
-        1.0, 1.0, 1.0,
-      ],
-      size: 4,
-    },
-  ],
-  ibo: [
-    0, 1, 2,
-    1, 2, 3,
-  ],
-};
+// SquareRender();
+import Torus from './util/Torus';
 
-const main = () => {
-  SquareRender(setting);
-  // window.requestAnimationFrame(main);
-};
-
-main();
+Torus();
