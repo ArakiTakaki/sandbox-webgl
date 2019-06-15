@@ -74,11 +74,11 @@ export default class WebGLClass {
     }
     this.gl = webgl;
 
-    // // カリングの有効化
+    // カリングの有効化
     // this.gl.enable(this.gl.CULL_FACE);
-    // // 深度テストの有効化
-    // this.gl.enable(this.gl.DEPTH_TEST);
-    // this.gl.enable(this.gl.LEQUAL);
+    // 深度テストの有効化
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.gl.enable(this.gl.LEQUAL);
   }
 
   /* ライフサイクル */
