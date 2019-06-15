@@ -6,6 +6,7 @@
 
 import CanvasManager from '../core/CanvasManager';
 import { IGLAttributeSetting } from '../constants/interfaces';
+import { SHADER_TYPE, BUFFER_TYPE } from '../core/WebGLClass';
 
 const vertexSource = `
 attribute vec3 position;
@@ -30,17 +31,18 @@ void main(void) {
 `;
 
 const GlClass = CanvasManager.createCanvas(600, 600, 'root');
-const vertex = GlClass.createShader(vertexSource, 'v1', 'vertex');
-const fragment = GlClass.createShader(fragmentSource, 'f1', 'fragment');
+const vertex = GlClass.createShader(vertexSource, 'v1', SHADER_TYPE.VERTEX);
+const fragment = GlClass.createShader(fragmentSource, 'f1', SHADER_TYPE.FRAGMENT);
 const program = GlClass.createProgram(vertex, fragment);
 
 const uniLocation = GlClass.gl.getUniformLocation(program, 'mvpMatrix');
+
 
 export default (attribSettingList: IGLAttributeSetting[]) => {
   GlClass.init();
   attribSettingList.forEach(setting => {
     const index = GlClass.gl.getAttribLocation(program, setting.name);
-    GlClass.setAttribute(setting, index);
+    GlClass.setAttribute(setting, index, BUFFER_TYPE.VBO);
   });
 
   attribSettingList.forEach(setting => {
@@ -48,7 +50,12 @@ export default (attribSettingList: IGLAttributeSetting[]) => {
       return;
     }
     setting.matrixList.forEach(matrix => {
-      GlClass.drawObject(uniLocation, matrix.create(), setting.data.length, setting.size);
+      GlClass.drawObject(
+        uniLocation,
+        matrix.create(),
+        setting.data.length,
+        setting.size, BUFFER_TYPE.VBO,
+      );
     });
   });
 

@@ -17,8 +17,6 @@ export default class CanvasManager {
       id,
       instance,
     });
-    instance.init();
-
     return instance;
   }
 
