@@ -40,7 +40,7 @@ export default class WebGLClass {
   /* 高さ */
   glHeight: number;
 
-  program?: WebGLProgram;
+  program: WebGLProgram | null = null;
 
   uniLocation: WebGLUniformLocation | null = null;
 
@@ -150,15 +150,16 @@ export default class WebGLClass {
     this.createUniformPhase(uniform);
   }
 
-  /* レンダリングフェーズ */
-  public render(uniform: Float32Array, iboLength: number) {
+  public initialize() {
     this.gl.clearColor(0.5, 0.2, 0.5, 1.0);
     this.gl.clearDepth(1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  }
 
+  /* レンダリングフェーズ */
+  public render(uniform: Float32Array, iboLength: number) {
     this.uniform(this.uniLocation, uniform);
     this.drawObject(iboLength, 0, BUFFER_TYPE.IBO);
-    this.gl.flush();
   }
   /* ライフサイクル */
 
@@ -166,6 +167,13 @@ export default class WebGLClass {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
     this.gl.enableVertexAttribArray(location);
     this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, 0, 0);
+  }
+
+  public uniform(
+    uniLocation: WebGLUniformLocation | null,
+    location: Float32Array,
+  ) {
+    this.gl.uniformMatrix4fv(uniLocation, false, location);
   }
 
   public drawObject(
@@ -183,13 +191,6 @@ export default class WebGLClass {
       default:
         throw Error('type of ???');
     }
-  }
-
-  public uniform(
-    uniLocation: WebGLUniformLocation | null,
-    location: Float32Array,
-  ) {
-    this.gl.uniformMatrix4fv(uniLocation, false, location);
   }
 
   public flush() {
@@ -279,8 +280,13 @@ export default class WebGLClass {
     if (program == null) {
       throw Errors.nullPointer('create program method');
     }
-    this.gl.attachShader(program, this.findShader(vsID));
-    this.gl.attachShader(program, this.findShader(fsID));
+    const vertex = this.findShader(vsID);
+    const fragment = this.findShader(fsID);
+    if (vertex == null || fragment == null) {
+      throw Errors.nullPointer('vertex fragment');
+    }
+    this.gl.attachShader(program, vertex);
+    this.gl.attachShader(program, fragment);
     this.gl.linkProgram(program);
     if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
       throw this.gl.getProgramInfoLog(program);
@@ -294,6 +300,7 @@ export default class WebGLClass {
       return;
     }
     this.gl.deleteProgram(this.program);
+    this.program = null;
   }
 
   // TODO: WebGLに登録できるバッファは一つまで(らしい)
@@ -303,19 +310,18 @@ export default class WebGLClass {
    */
   public createBuffer(data: number[], type: BUFFER_TYPE) {
     const buffer = this.gl.createBuffer();
+
     if (buffer == null) {
       throw Errors.nullPointer(type);
     }
     const target = type === BUFFER_TYPE.VBO
       ? this.gl.ARRAY_BUFFER
       : this.gl.ELEMENT_ARRAY_BUFFER;
-
-    this.gl.bindBuffer(target, buffer);
-
     const offset = type === BUFFER_TYPE.VBO
       ? new Float32Array(data)
       : new Int16Array(data);
 
+    this.gl.bindBuffer(target, buffer);
     this.gl.bufferData(target, offset, this.gl.STATIC_DRAW);
     this.gl.bindBuffer(target, null);
     return buffer;
