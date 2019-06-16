@@ -44,9 +44,9 @@ export type TypeUniform =
   | Matrix2x2;
 
 export interface IUniLocation {
-  location: TypeUniform;
-  type: UNIFORM_TYPE;
   name: string;
+  type: UNIFORM_TYPE;
+  location: TypeUniform;
 }
 
 export interface ICacheShader {

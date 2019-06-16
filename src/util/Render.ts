@@ -1,5 +1,4 @@
 /* eslint-disable no-bitwise */
-import { Matrix4x4 } from 'matrixgl';
 import CanvasManager from '../core/CanvasManager';
 import { IRenderObjectSetting, SHADER_TYPE } from '../constants/interfaces';
 
