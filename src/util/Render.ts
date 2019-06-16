@@ -21,9 +21,7 @@ export default (
   GLClass.initialRendering(circleSetting1);
   GLClass.initialRendering(circleSetting2);
 
-  let i = 0;
   const main = () => {
-    i += 0.001;
     GLClass.preRender();
 
     GLClass.updateRendering(circleSetting1);

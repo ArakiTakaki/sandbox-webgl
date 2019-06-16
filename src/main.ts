@@ -5,7 +5,7 @@ import fragmentSource from './shader/fragment.glsl';
 import vertexSource from './shader/vertex.glsl';
 import Render from './util/Render';
 import { IRenderObjectSetting, UNIFORM_TYPE } from './constants/interfaces';
-import Torus from './util/Torus';
+import Torus from './objectGenerators/Torus';
 
 
 const circle = Torus(20, 20, 0.4, 0.8);
