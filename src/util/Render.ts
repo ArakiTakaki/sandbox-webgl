@@ -21,48 +21,57 @@ export default (
   GLClass.initialRendering(setting, 'sampleIBO');
   const iboLength = setting.ibo.length;
 
+  /* matrix */
   const invMatrix = GLClass.findUniLocation('invMatrix');
   if (invMatrix == null) throw Error('null');
-  const invMatrixLocation = new Matrix4x4(
+  const invMatrixL = new Matrix4x4(
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 5,
   );
+  GLClass.setLocation(invMatrix, invMatrixL.values, UNIFORM_TYPE.MAT4);
 
   const mvpMatrix = GLClass.findUniLocation('mvpMatrix');
   if (mvpMatrix == null) throw Error('null');
-  const mvpMatrixLocation = new Matrix4x4(
+  const mvpMatrixL = new Matrix4x4(
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
-    0, 0, 0, 5,
-  );
+    1, 1, 1, 5,
+  ).rotateX(20);
+  GLClass.setLocation(mvpMatrix, mvpMatrixL.values, UNIFORM_TYPE.MAT4);
 
-  const lightDirection = GLClass.findUniLocation('lightDirection');
-  if (lightDirection == null) throw Error('null');
-  const lightDirectionL = [-0.5, 0.8, 0.5];
+  // 光源
+  const mMatrix = GLClass.findUniLocation('mMatrix');
+  if (mMatrix == null) throw Error('null');
+  const mMatrixL = new Matrix4x4(
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    10, 50, 10, 1,
+  );
+  GLClass.setLocation(mMatrix, mMatrixL.values, UNIFORM_TYPE.MAT4);
 
   const ambientColor = GLClass.findUniLocation('ambientColor');
   if (ambientColor == null) throw Error('null');
   const ambientColorL = [0.1, 0.0, 0.0, 1.0];
+  GLClass.setLocation(ambientColor, ambientColorL, UNIFORM_TYPE.VEC4);
 
   const eyeDirection = GLClass.findUniLocation('eyeDirection');
   if (eyeDirection == null) throw Error('null');
   const eyeDirectionL = [0.0, 0.0, 20.0];
+  GLClass.setLocation(eyeDirection, eyeDirectionL, UNIFORM_TYPE.VEC3);
 
   let i = 0;
-  const invMatrixL = invMatrixLocation;
-  GLClass.setLocation(invMatrix, invMatrixL.values, UNIFORM_TYPE.MAT4);
-  GLClass.setLocation(ambientColor, ambientColorL, UNIFORM_TYPE.VEC4);
-  GLClass.setLocation(lightDirection, lightDirectionL, UNIFORM_TYPE.VEC3);
-  GLClass.setLocation(eyeDirection, eyeDirectionL, UNIFORM_TYPE.VEC3);
   const main = () => {
     i += 0.001;
     GLClass.initialize();
 
-    const mvpMatrixL = mvpMatrixLocation.rotateX(30).rotateZ(i * 50);
-    GLClass.setLocation(mvpMatrix, mvpMatrixL.values, UNIFORM_TYPE.MAT4);
+    const mvpMatrixLoc = mvpMatrixL.rotateZ(i * 50);
+    GLClass.setLocation(mvpMatrix, mvpMatrixLoc.values, UNIFORM_TYPE.MAT4);
+    // const mMatrixLoc = mMatrixL.rotateZ(i * 100);
+    // GLClass.setLocation(mMatrix, mMatrixLoc.values, UNIFORM_TYPE.MAT4);
 
     GLClass.render(iboLength);
 

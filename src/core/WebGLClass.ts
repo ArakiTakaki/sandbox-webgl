@@ -124,7 +124,7 @@ export default class WebGLClass {
       if (tmp != null) return;
 
       const uniLocation = this.gl.getUniformLocation(this.program, name);
-      if (uniLocation == null) throw Error('unilocation notfound');
+      if (uniLocation == null) throw Error(`unilocation notfound ${name}`);
 
       this.addUniLocation(uniLocation, name);
     }

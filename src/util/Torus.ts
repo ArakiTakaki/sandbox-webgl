@@ -1,3 +1,5 @@
+import HSVA from './HSVA';
+
 export default (row: number, column: number, irad: number, orad: number) => {
   const position: number[] = [];
   const color: number[] = [];
@@ -18,7 +20,9 @@ export default (row: number, column: number, irad: number, orad: number) => {
       const rz = rr * Math.sin(tr);
       // const tc = hsvaカラー関数
       normal.push(rx, ry, rz);
-      color.push(1, 0.5, rr, 1);
+      const tc = HSVA(360 / column * ii, 1, 1, 1);
+      if (tc == null) throw Error('fuck');
+      color.push(tc[0], tc[1], tc[2], tc[3]);
     }
   }
   for (let i = 0; i < row; i += 1) {
