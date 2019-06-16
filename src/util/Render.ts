@@ -43,22 +43,33 @@ export default (
   if (lightDirection == null) throw Error('null');
   const lightDirectionL = [-0.5, 0.8, 0.5];
 
+  const ambientColor = GLClass.findUniLocation('ambientColor');
+  if (ambientColor == null) throw Error('null');
+  const ambientColorL = [0.1, 0.0, 0.0, 1.0];
+
+  const eyeDirection = GLClass.findUniLocation('eyeDirection');
+  if (eyeDirection == null) throw Error('null');
+  const eyeDirectionL = [0.0, 0.0, 20.0];
+
   let i = 0;
+  const invMatrixL = invMatrixLocation;
+  GLClass.setLocation(invMatrix, invMatrixL.values, UNIFORM_TYPE.MAT4);
+  GLClass.setLocation(ambientColor, ambientColorL, UNIFORM_TYPE.VEC4);
+  GLClass.setLocation(lightDirection, lightDirectionL, UNIFORM_TYPE.VEC3);
+  GLClass.setLocation(eyeDirection, eyeDirectionL, UNIFORM_TYPE.VEC3);
   const main = () => {
     i += 0.001;
     GLClass.initialize();
 
-    const invMatrixL = invMatrixLocation.rotateX(i * 10).rotateY(i * 5).rotateZ(i * 15);
-    GLClass.setLocation(invMatrix, invMatrixL.values, UNIFORM_TYPE.FV4);
-    GLClass.setLocation(lightDirection, lightDirectionL, UNIFORM_TYPE.FV3);
+    const mvpMatrixL = mvpMatrixLocation.rotateX(30).rotateZ(i * 50);
+    GLClass.setLocation(mvpMatrix, mvpMatrixL.values, UNIFORM_TYPE.MAT4);
 
-    const mvpMatrixL = mvpMatrixLocation.rotateX(i * 10).rotateY(i * 5).rotateZ(i * 15);
-    GLClass.setLocation(mvpMatrix, mvpMatrixL.values, UNIFORM_TYPE.FV4);
     GLClass.render(iboLength);
+
     GLClass.flush();
     // eslint-disable-next-line no-undef
-    // window.requestAnimationFrame(main);
-    setTimeout(main, 10);
+    window.requestAnimationFrame(main);
+    // setTimeout(main, 60);
   };
   main();
 };

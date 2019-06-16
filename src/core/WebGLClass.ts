@@ -2,40 +2,23 @@
 /* eslint-disable no-bitwise */
 import Errors from '../util/Errors';
 import {
-  IRenderObjectSetting, BUFFER_TYPE, SHADER_TYPE, UNIFORM_TYPE,
+  IRenderObjectSetting,
+  BUFFER_TYPE,
+  SHADER_TYPE,
+  UNIFORM_TYPE,
+  ICacheShader,
+  ICacheBuffer,
+  IAttribLocation,
+  IUniLocationList,
 } from '../constants/interfaces';
-
-
-interface ICacheShader {
-  id: string;
-  shader: WebGLShader;
-}
-
-interface ICacheBuffer {
-  id: string;
-  buffer: WebGLBuffer;
-}
-
-interface IAttribLocation {
-  id: string;
-  location: number;
-}
-
-interface IUniLocationList {
-  id: string;
-  uniLocation: WebGLUniformLocation;
-}
 
 export default class WebGLClass {
   element: HTMLCanvasElement;
 
-  /* WebGLのメインコンポーネント */
   gl: WebGLRenderingContext;
 
-  /* 幅 */
   glWidth: number;
 
-  /* 高さ */
   glHeight: number;
 
   program: WebGLProgram | null = null;
@@ -81,7 +64,7 @@ export default class WebGLClass {
 
   /* ライフサイクル */
   /* マウンティングフェーズ */
-  public attribLocationPhase(setting :IRenderObjectSetting) {
+  public attribLocationPhase(setting: IRenderObjectSetting) {
     const { vbo } = setting;
     for (let i = 0; i < vbo.length; i += 1) {
       // attribの設定
@@ -97,7 +80,7 @@ export default class WebGLClass {
     }
   }
 
-  public createBufferPhase(setting :IRenderObjectSetting) {
+  public createBufferPhase(setting: IRenderObjectSetting) {
     const { vbo } = setting;
     for (let i = 0; i < vbo.length; i += 1) {
       // bufferの作成
@@ -108,7 +91,7 @@ export default class WebGLClass {
     }
   }
 
-  public setAttributePhase(setting :IRenderObjectSetting) {
+  public setAttributePhase(setting: IRenderObjectSetting) {
     const { vbo } = setting;
     for (let i = 0; i < vbo.length; i += 1) {
       const targetVBO = this.findBuffer(vbo[i].name);
@@ -120,7 +103,7 @@ export default class WebGLClass {
     }
   }
 
-  public createIBOPhase(setting :IRenderObjectSetting, iboName: string) {
+  public createIBOPhase(setting: IRenderObjectSetting, iboName: string) {
     if (this.findBuffer(iboName) != null) {
       return;
     }
@@ -147,7 +130,7 @@ export default class WebGLClass {
     }
   }
 
-  public initialRendering(setting :IRenderObjectSetting, iboName: string) {
+  public initialRendering(setting: IRenderObjectSetting, iboName: string) {
     this.gl.viewport(0, 0, this.glWidth, this.glHeight);
     // attrib取得
     this.attribLocationPhase(setting);
@@ -162,17 +145,21 @@ export default class WebGLClass {
   }
 
   public initialize() {
-    this.gl.clearColor(0.0, 0.0, 0.2, 1.0);
+    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this.gl.clearDepth(1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   }
 
   public setLocation(location: WebGLUniformLocation, matrix: Float32List, type: UNIFORM_TYPE) {
-    if (type === UNIFORM_TYPE.FV4) {
+    if (type === UNIFORM_TYPE.MAT4) {
       this.gl.uniformMatrix4fv(location, false, matrix);
       return;
     }
-    if (type === UNIFORM_TYPE.FV3) {
+    if (type === UNIFORM_TYPE.VEC4) {
+      this.gl.uniform4fv(location, matrix);
+      return;
+    }
+    if (type === UNIFORM_TYPE.VEC3) {
       this.gl.uniform3fv(location, matrix);
     }
   }
@@ -258,7 +245,7 @@ export default class WebGLClass {
     return content.buffer;
   }
 
-  private addAttrLocation(attr:number, id: string) {
+  private addAttrLocation(attr: number, id: string) {
     this.attrLocationList.push({
       location: attr,
       id,

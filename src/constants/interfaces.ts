@@ -12,8 +12,9 @@ export enum SHADER_TYPE {
 }
 
 export enum UNIFORM_TYPE {
-  FV3 = 'FV3',
-  FV4 = 'FV4',
+  VEC3 = 'VEC3',
+  VEC4 = 'VEC4',
+  MAT4 = 'MAT4',
 }
 export interface IVBOSetting {
   name: string;
@@ -31,6 +32,26 @@ export interface IUniLocation {
   location: Matrix4x4 | number[];
   type: UNIFORM_TYPE;
   name: string;
+}
+
+export interface ICacheShader {
+  id: string;
+  shader: WebGLShader;
+}
+
+export interface ICacheBuffer {
+  id: string;
+  buffer: WebGLBuffer;
+}
+
+export interface IAttribLocation {
+  id: string;
+  location: number;
+}
+
+export interface IUniLocationList {
+  id: string;
+  uniLocation: WebGLUniformLocation;
 }
 
 export default 'test';
