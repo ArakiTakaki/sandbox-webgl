@@ -10,6 +10,7 @@ import {
   ICacheBuffer,
   IAttribLocation,
   IUniLocationList,
+  IUniLocation,
 } from '../constants/interfaces';
 
 export default class WebGLClass {
@@ -103,12 +104,14 @@ export default class WebGLClass {
     }
   }
 
-  public createIBOPhase(setting: IRenderObjectSetting, iboName: string) {
-    if (this.findBuffer(iboName) != null) {
+  public bindIBO(setting: IRenderObjectSetting) {
+    const { name, data } = setting.ibo;
+    const tmp = this.findBuffer(name);
+    if (tmp != null) {
+      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, tmp);
       return;
     }
-    const { ibo } = setting;
-    const iboBuffer = this.createBuffer(ibo, BUFFER_TYPE.IBO);
+    const iboBuffer = this.createBuffer(data, BUFFER_TYPE.IBO);
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, iboBuffer);
   }
 
@@ -130,38 +133,29 @@ export default class WebGLClass {
     }
   }
 
-  public initialRendering(setting: IRenderObjectSetting, iboName: string) {
+  public initialRendering(setting: IRenderObjectSetting) {
     this.gl.viewport(0, 0, this.glWidth, this.glHeight);
-    // attrib取得
     this.attribLocationPhase(setting);
-    // VBOの生成
     this.createBufferPhase(setting);
-    // VBO登録
     this.setAttributePhase(setting);
-    // uniLocationの登録
     this.createUniformPhase(setting);
-    // IBO生成と登録 関係ない
-    this.createIBOPhase(setting, iboName);
+    for (let i = 0; i < setting.uniLocations.length; i += 1) {
+      this.initLocation(setting.uniLocations[i]);
+    }
   }
 
-  public initialize() {
+  public updateRendering(setting: IRenderObjectSetting) {
+    this.setAttributePhase(setting);
+    for (let i = 0; i < setting.uniLocations.length; i += 1) {
+      this.initLocation(setting.uniLocations[i]);
+    }
+    this.bindIBO(setting);
+  }
+
+  public preRender() {
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this.gl.clearDepth(1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-  }
-
-  public setLocation(location: WebGLUniformLocation, matrix: Float32List, type: UNIFORM_TYPE) {
-    if (type === UNIFORM_TYPE.MAT4) {
-      this.gl.uniformMatrix4fv(location, false, matrix);
-      return;
-    }
-    if (type === UNIFORM_TYPE.VEC4) {
-      this.gl.uniform4fv(location, matrix);
-      return;
-    }
-    if (type === UNIFORM_TYPE.VEC3) {
-      this.gl.uniform3fv(location, matrix);
-    }
   }
 
   /* レンダリングフェーズ */
@@ -169,6 +163,24 @@ export default class WebGLClass {
     this.drawObject(iboLength, 0, BUFFER_TYPE.IBO);
   }
   /* ライフサイクル */
+
+  public initLocation(locData: IUniLocation) {
+    const { type, location, name } = locData;
+    const loc = this.findUniLocation(name);
+    if (loc == null) throw Error('null');
+
+    if (type === UNIFORM_TYPE.MAT4) {
+      this.gl.uniformMatrix4fv(loc, false, location.values);
+      return;
+    }
+    if (type === UNIFORM_TYPE.VEC4) {
+      this.gl.uniform4fv(loc, location.values);
+      return;
+    }
+    if (type === UNIFORM_TYPE.VEC3) {
+      this.gl.uniform3fv(loc, location.values);
+    }
+  }
 
   public setAttribute(vbo: WebGLBuffer, size: number, location: number) {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
@@ -237,7 +249,7 @@ export default class WebGLClass {
     });
   }
 
-  private findBuffer(id: string): WebGLBuffer | null {
+  public findBuffer(id: string): WebGLBuffer | null {
     const content = this.bufferList.filter(item => item.id === id)[0];
     if (content == null) {
       return null;

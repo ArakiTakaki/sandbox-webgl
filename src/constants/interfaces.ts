@@ -1,4 +1,6 @@
-import { Matrix4x4 } from 'matrixgl';
+import {
+  Matrix4x4, Float32Vector3, Float32Vector2, Float32Vector4, Matrix3x3, Matrix2x2,
+} from 'matrixgl';
 // eslint-disable-next-line import/no-cycle
 
 export enum BUFFER_TYPE {
@@ -24,12 +26,25 @@ export interface IVBOSetting {
 
 export interface IRenderObjectSetting {
   vbo: IVBOSetting[];
-  ibo: number[]
+  ibo: IIBOSetting;
   uniLocations: IUniLocation[];
 }
 
+export interface IIBOSetting {
+  name: string;
+  data: number[];
+}
+
+export type TypeUniform =
+  | Matrix4x4
+  | Float32Vector3
+  | Float32Vector2
+  | Float32Vector4
+  | Matrix3x3
+  | Matrix2x2;
+
 export interface IUniLocation {
-  location: Matrix4x4 | number[];
+  location: TypeUniform;
   type: UNIFORM_TYPE;
   name: string;
 }
