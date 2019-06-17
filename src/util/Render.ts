@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 import CanvasManager from '../core/CanvasManager';
 import { IRenderObjectSetting, SHADER_TYPE } from '../constants/interfaces';
+import BaseObject from '~/GLClasses/BaseObject';
 
 const vertexName = 'v1';
 const fragmentName = 'f1';
@@ -8,7 +9,7 @@ const fragmentName = 'f1';
 // const program = GlClass.createProgram(vertex, fragment);
 
 export default (
-  settings: IRenderObjectSetting[],
+  settings: BaseObject[],
   vertexSource: string,
   fragmentSource: string,
 ) => {

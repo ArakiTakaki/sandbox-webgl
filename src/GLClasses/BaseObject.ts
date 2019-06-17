@@ -3,18 +3,30 @@ import { IVBOSetting, IIBOSetting, IUniLocation } from '../constants/interfaces'
 export default class BaseObject {
   private vbo: IVBOSetting[] = [];
 
-  private ibo: IIBOSetting;
+  private ibo?: IIBOSetting;
 
   private uniLocaiton: IUniLocation[] = [];
 
   private locationIndexMap:{ [key: string]: number; } = {};
 
-  constructor(vbo: IVBOSetting[], ibo: IIBOSetting) {
-    this.vbo = vbo;
-    this.ibo = ibo;
+  public name: string;
+
+  constructor(name: string) {
+    this.name = name;
   }
 
-  get getVBO() {
+  addVBO(vbo: IVBOSetting) {
+    this.vbo.push(vbo);
+  }
+
+  setIBO(ibo: number[]) {
+    this.ibo = {
+      name: this.name,
+      data: ibo,
+    };
+  }
+
+  get getVBOList() {
     return this.vbo;
   }
 
@@ -26,7 +38,7 @@ export default class BaseObject {
    * @param location
    * @returns - uni locationのIndex
    */
-  setUniLocation(location: IUniLocation) {
+  addUniLocation(location: IUniLocation) {
     this.uniLocaiton.push(location);
     this.locationIndexMap[location.name] = this.uniLocaiton.length - 1;
   }
