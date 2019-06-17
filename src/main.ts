@@ -7,6 +7,11 @@ import Render from './util/Render';
 import { IRenderObjectSetting, UNIFORM_TYPE } from './constants/interfaces';
 import Torus from './objectGenerators/Torus';
 
+// const sample = require('webgl-obj-loader');
+
+// const objStr = document.getElementById('my_cube.obj').innerHTML;
+// const obj = new sample.Mesh(objStr);
+// console.log(obj);
 
 const circle = Torus(20, 20, 0.4, 0.8);
 const setting: IRenderObjectSetting[] = [
