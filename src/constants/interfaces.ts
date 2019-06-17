@@ -14,6 +14,7 @@ export enum SHADER_TYPE {
 }
 
 export enum UNIFORM_TYPE {
+  VEC2 = 'VEC2',
   VEC3 = 'VEC3',
   VEC4 = 'VEC4',
   MAT4 = 'MAT4',
@@ -37,8 +38,8 @@ export interface IIBOSetting {
 
 export type TypeUniform =
   | Matrix4x4
-  | Float32Vector3
   | Float32Vector2
+  | Float32Vector3
   | Float32Vector4
   | Matrix3x3
   | Matrix2x2;

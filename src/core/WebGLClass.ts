@@ -179,6 +179,9 @@ export default class WebGLClass {
       this.gl.uniform4fv(loc, location.values);
       return;
     }
+    if (type === UNIFORM_TYPE.VEC2) {
+      this.gl.uniform2fv(loc, location.values);
+    }
     if (type === UNIFORM_TYPE.VEC3) {
       this.gl.uniform3fv(loc, location.values);
     }

@@ -1,12 +1,24 @@
 /* eslint-disable no-bitwise */
-import { Matrix4x4 } from 'matrixgl';
+import { Matrix4x4, Float32Vector2 } from 'matrixgl';
 import CanvasManager from '../core/CanvasManager';
 import { SHADER_TYPE } from '../constants/interfaces';
 import BaseObject from '../GLClasses/BaseObject';
 import vertexConstants from '../shader/vertexConstants';
+import fragmentConstants from '../shader/fragmentConstants';
 
 const vertexName = 'v1';
 const fragmentName = 'f1';
+
+let mouseX = 1;
+let mouseY = 1;
+// eslint-disable-next-line no-undef
+const { innerWidth, innerHeight } = window;
+// eslint-disable-next-line no-undef
+document.addEventListener('mousemove', (e: MouseEvent) => {
+  mouseX = e.x / innerHeight * 3 + 1;
+  mouseY = e.y / innerWidth;
+  console.log(mouseX, mouseY);
+});
 
 // const program = GlClass.createProgram(vertex, fragment);
 
@@ -38,6 +50,16 @@ export default (
         ...f,
         location: location.rotateX(40).rotateY(-i / 50 + j / (jLen / 6.3)).translate(0, 0, -1.5),
       });
+
+      const mouse = Circle1.getUniLocation(fragmentConstants.UNIFORMS.MOUSE);
+      const mouseLocation = mouse.location as Float32Vector2;
+      mouseLocation.x = mouseX;
+      mouseLocation.y = mouseY;
+      GLClass.initLocation({
+        ...mouse,
+        location: mouseLocation,
+      });
+
       GLClass.render(Circle1.getIBODataLength());
     }
     GLClass.flush();

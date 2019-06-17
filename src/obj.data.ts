@@ -1,5 +1,5 @@
 import {
-  Matrix4x4, Float32Vector4, Float32Vector3,
+  Matrix4x4, Float32Vector4, Float32Vector3, Float32Vector2,
 } from 'matrixgl';
 import { UNIFORM_TYPE } from './constants/interfaces';
 
@@ -80,6 +80,12 @@ const circleCreator = (name: string, row: number, col: number, irad: number, ora
     name: F_UNIFORMS.EYE_DIRECTION,
     type: UNIFORM_TYPE.VEC3,
     location: new Float32Vector3(0.0, 0.0, 20.0),
+  });
+
+  circleObject.addUniLocation({
+    name: F_UNIFORMS.MOUSE,
+    type: UNIFORM_TYPE.VEC2,
+    location: new Float32Vector2(0, 0),
   });
   return circleObject;
 };
