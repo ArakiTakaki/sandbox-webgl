@@ -20,8 +20,8 @@ export default (
   GLClass.createShader(fragmentSource, fragmentName, SHADER_TYPE.FRAGMENT);
   GLClass.createProgram(vertexName, fragmentName);
 
-  const [Circle] = settings;
-  GLClass.initialRendering(Circle);
+  const [Circle1] = settings;
+  GLClass.initialRendering(Circle1);
 
   let i = 1;
   const { MVP_MATRIX } = vertexConstants.UNIFORMS;
@@ -29,16 +29,17 @@ export default (
     i += 1;
     GLClass.preRender();
 
-    const f = Circle.getUniLocation(MVP_MATRIX);
-    GLClass.updateRendering(Circle);
-    const location = f.location as Matrix4x4;
-
-    GLClass.initLocation({
-      name: f.name,
-      type: f.type,
-      location: location.rotateX(i / 10).rotateZ(i / 100),
-    });
-    GLClass.render(Circle.getIBODataLength());
+    const jLen = 5;
+    for (let j = 0; j < jLen; j += 1) {
+      const f = Circle1.getUniLocation(MVP_MATRIX);
+      GLClass.updateRendering(Circle1);
+      const location = f.location as Matrix4x4;
+      GLClass.initLocation({
+        ...f,
+        location: location.rotateX(40).rotateY(-i / 50 + j / (jLen / 6.3)).translate(0, 0, -1.5),
+      });
+      GLClass.render(Circle1.getIBODataLength());
+    }
     GLClass.flush();
 
     // eslint-disable-next-line no-undef
