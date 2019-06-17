@@ -41,36 +41,36 @@ const { UNIFORMS: V_UNIFORMS } = vertexConstants;
 const { UNIFORMS: F_UNIFORMS } = fragmentConstants;
 
 circleObject.addUniLocation({
-  location: new Matrix4x4(
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 5,
-  ),
   name: V_UNIFORMS.MVP_MATRIX,
   type: UNIFORM_TYPE.MAT4,
-});
-
-circleObject.addUniLocation({
   location: new Matrix4x4(
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 5,
   ),
+});
+
+circleObject.addUniLocation({
   name: V_UNIFORMS.M_MATRIX,
   type: UNIFORM_TYPE.MAT4,
-});
-
-circleObject.addUniLocation({
   location: new Matrix4x4(
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, 0,
     0, 0, 0, 5,
   ),
+});
+
+circleObject.addUniLocation({
   name: F_UNIFORMS.INV_MATRIX,
   type: UNIFORM_TYPE.MAT4,
+  location: new Matrix4x4(
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 5,
+  ),
 });
 
 circleObject.addUniLocation({

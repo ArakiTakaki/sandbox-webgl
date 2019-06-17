@@ -1,7 +1,9 @@
 /* eslint-disable no-bitwise */
+import { Matrix4x4 } from 'matrixgl';
 import CanvasManager from '../core/CanvasManager';
-import { IRenderObjectSetting, SHADER_TYPE } from '../constants/interfaces';
-import BaseObject from '~/GLClasses/BaseObject';
+import { SHADER_TYPE } from '../constants/interfaces';
+import BaseObject from '../GLClasses/BaseObject';
+import vertexConstants from '../shader/vertexConstants';
 
 const vertexName = 'v1';
 const fragmentName = 'f1';
@@ -18,17 +20,25 @@ export default (
   GLClass.createShader(fragmentSource, fragmentName, SHADER_TYPE.FRAGMENT);
   GLClass.createProgram(vertexName, fragmentName);
 
-  const [circleSetting1, circleSetting2] = settings;
-  GLClass.initialRendering(circleSetting1);
-  GLClass.initialRendering(circleSetting2);
+  const [Circle] = settings;
+  GLClass.initialRendering(Circle);
 
+  let i = 1;
+  const { MVP_MATRIX } = vertexConstants.UNIFORMS;
   const main = () => {
+    i += 1;
     GLClass.preRender();
 
-    GLClass.updateRendering(circleSetting1);
-    GLClass.render(circleSetting1.ibo.data.length);
-    GLClass.updateRendering(circleSetting2);
-    GLClass.render(circleSetting2.ibo.data.length);
+    const f = Circle.getUniLocation(MVP_MATRIX);
+    GLClass.updateRendering(Circle);
+    const location = f.location as Matrix4x4;
+
+    GLClass.initLocation({
+      name: f.name,
+      type: f.type,
+      location: location.rotateX(i / 10).rotateZ(i / 100),
+    });
+    GLClass.render(Circle.getIBODataLength());
     GLClass.flush();
 
     // eslint-disable-next-line no-undef

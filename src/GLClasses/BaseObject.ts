@@ -9,6 +9,8 @@ export default class BaseObject {
 
   private locationIndexMap:{ [key: string]: number; } = {};
 
+  private iboDataLength = 0;
+
   public name: string;
 
   constructor(name: string) {
@@ -24,13 +26,18 @@ export default class BaseObject {
       name: this.name,
       data: ibo,
     };
+    this.iboDataLength = ibo.length;
   }
 
-  get getVBOList() {
+  getVBOList() {
     return this.vbo;
   }
 
-  get getIBO() {
+  getIBODataLength() {
+    return this.iboDataLength;
+  }
+
+  getIBO() {
     return this.ibo;
   }
 

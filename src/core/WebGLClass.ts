@@ -2,7 +2,6 @@
 /* eslint-disable no-bitwise */
 import Errors from '../util/Errors';
 import {
-  IRenderObjectSetting,
   BUFFER_TYPE,
   SHADER_TYPE,
   UNIFORM_TYPE,
@@ -11,7 +10,10 @@ import {
   IAttribLocation,
   IUniLocationList,
   IUniLocation,
+  IVBOSetting,
+  IIBOSetting,
 } from '../constants/interfaces';
+import BaseObject from '../GLClasses/BaseObject';
 
 export default class WebGLClass {
   element: HTMLCanvasElement;
@@ -65,8 +67,7 @@ export default class WebGLClass {
 
   /* ライフサイクル */
   /* マウンティングフェーズ */
-  public attribLocationPhase(setting: IRenderObjectSetting) {
-    const { vbo } = setting;
+  public attribLocationPhase(vbo: IVBOSetting[]) {
     for (let i = 0; i < vbo.length; i += 1) {
       // attribの設定
       if (this.program == null) {
@@ -81,8 +82,7 @@ export default class WebGLClass {
     }
   }
 
-  public createBufferPhase(setting: IRenderObjectSetting) {
-    const { vbo } = setting;
+  public createBufferPhase(vbo: IVBOSetting[]) {
     for (let i = 0; i < vbo.length; i += 1) {
       // bufferの作成
       const buffer = this.findBuffer(vbo[i].name);
@@ -92,8 +92,7 @@ export default class WebGLClass {
     }
   }
 
-  public setAttributePhase(setting: IRenderObjectSetting) {
-    const { vbo } = setting;
+  public setAttributePhase(vbo: IVBOSetting[]) {
     for (let i = 0; i < vbo.length; i += 1) {
       const targetVBO = this.findBuffer(vbo[i].name);
       const targetAttrib = this.findAttribLocation(vbo[i].name);
@@ -104,8 +103,8 @@ export default class WebGLClass {
     }
   }
 
-  public bindIBO(setting: IRenderObjectSetting) {
-    const { name, data } = setting.ibo;
+  public bindIBO(ibo: IIBOSetting) {
+    const { name, data } = ibo;
     const tmp = this.findBuffer(name);
     if (tmp != null) {
       this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, tmp);
@@ -115,11 +114,10 @@ export default class WebGLClass {
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, iboBuffer);
   }
 
-  public createUniformPhase(setting: IRenderObjectSetting) {
+  public createUniformPhase(uniLocations: IUniLocation[]) {
     if (this.program == null) {
       throw Error('not found program');
     }
-    const { uniLocations } = setting;
     for (let i = 0; i < uniLocations.length; i += 1) {
       const { name } = uniLocations[i];
 
@@ -133,23 +131,27 @@ export default class WebGLClass {
     }
   }
 
-  public initialRendering(setting: IRenderObjectSetting) {
+  public initialRendering(baseObj: BaseObject) {
     this.gl.viewport(0, 0, this.glWidth, this.glHeight);
-    this.attribLocationPhase(setting);
-    this.createBufferPhase(setting);
-    this.setAttributePhase(setting);
-    this.createUniformPhase(setting);
-    for (let i = 0; i < setting.uniLocations.length; i += 1) {
-      this.initLocation(setting.uniLocations[i]);
+    this.attribLocationPhase(baseObj.getVBOList());
+    this.createBufferPhase(baseObj.getVBOList());
+    this.setAttributePhase(baseObj.getVBOList());
+    this.createUniformPhase(baseObj.getAllUniLocation());
+    const uniLocationList = baseObj.getAllUniLocation();
+    for (let i = 0; i < uniLocationList.length; i += 1) {
+      this.initLocation(uniLocationList[i]);
     }
   }
 
-  public updateRendering(setting: IRenderObjectSetting) {
-    this.setAttributePhase(setting);
-    for (let i = 0; i < setting.uniLocations.length; i += 1) {
-      this.initLocation(setting.uniLocations[i]);
+  public updateRendering(baseObj: BaseObject) {
+    this.setAttributePhase(baseObj.getVBOList());
+    const uniLocationList = baseObj.getAllUniLocation();
+    for (let i = 0; i < uniLocationList.length; i += 1) {
+      this.initLocation(uniLocationList[i]);
     }
-    this.bindIBO(setting);
+    const ibo = baseObj.getIBO();
+    if (ibo == null) throw Error('ibo null pointer');
+    this.bindIBO(ibo);
   }
 
   public preRender() {
