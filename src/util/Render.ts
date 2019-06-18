@@ -15,7 +15,7 @@ let mouseY = 0;
 const { innerWidth, innerHeight } = window;
 // eslint-disable-next-line no-undef
 document.addEventListener('mousemove', (e: MouseEvent) => {
-  mouseX = (e.x / innerHeight + 0.1) * 50;
+  mouseX = (e.x / innerHeight + 0.1);
   // mouseY = e.y / innerWidth;
 });
 

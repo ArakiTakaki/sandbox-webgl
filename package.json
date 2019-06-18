@@ -1,6 +1,7 @@
 {
   "scripts": {
     "start": "parcel ./src/index.html",
+    "prebuild": "rm -rf ./dist",
     "build": "parcel build ./src/index.html"
   },
   "devDependencies": {

@@ -15,8 +15,8 @@ void main(void){
     vec3  invLight  = normalize(invMatrix * vec4(lightVec, 0.0)).xyz;
     vec3  invEye    = normalize(invMatrix * vec4(eyeDirection, 10.0)).xyz;
     vec3  halfLE    = normalize(invLight + invEye);
-    float diffuse   = clamp(dot(vNormal, invLight), mouse.y, 1.0) + 0.5;
-    float specular  = pow(clamp(dot(vNormal, halfLE), 0.0, 1.0), mouse.x);
+    float diffuse   = clamp(dot(vNormal, invLight), mouse.y, 1.0) + 0.3;
+    float specular  = pow(clamp(dot(vNormal, halfLE), 0.0 + mouse.x, 1.0), 10.0);
     vec4  destColor = vColor * vec4(vec3(diffuse), 1.0) + vec4(vec3(specular), 1.0) + ambientColor;
 
     // gl_FragCOlorに対して出力すればいい
