@@ -18,5 +18,7 @@ void main(void){
     float diffuse   = clamp(dot(vNormal, invLight), mouse.y, 1.0) + 0.5;
     float specular  = pow(clamp(dot(vNormal, halfLE), 0.0, 1.0), mouse.x);
     vec4  destColor = vColor * vec4(vec3(diffuse), 1.0) + vec4(vec3(specular), 1.0) + ambientColor;
+
+    // gl_FragCOlorに対して出力すればいい
     gl_FragColor    = destColor;
 }

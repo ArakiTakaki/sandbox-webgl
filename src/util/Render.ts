@@ -9,16 +9,23 @@ import fragmentConstants from '../shader/fragmentConstants';
 const vertexName = 'v1';
 const fragmentName = 'f1';
 
-let mouseX = 1;
-let mouseY = 1;
+let mouseX = 50;
+let mouseY = 0;
 // eslint-disable-next-line no-undef
 const { innerWidth, innerHeight } = window;
 // eslint-disable-next-line no-undef
 document.addEventListener('mousemove', (e: MouseEvent) => {
-  mouseX = e.x / innerHeight * 3 + 1;
-  mouseY = e.y / innerWidth;
-  console.log(mouseX, mouseY);
+  mouseX = (e.x / innerHeight + 0.1) * 50;
+  // mouseY = e.y / innerWidth;
 });
+
+let attouch = 0;
+let asdf = 1;
+setInterval(() => {
+  asdf += 1;
+  attouch = Math.sin(asdf / 100);
+  mouseY = attouch * 0.5;
+},10)
 
 // const program = GlClass.createProgram(vertex, fragment);
 
@@ -41,7 +48,7 @@ export default (
     i += 1;
     GLClass.preRender();
 
-    const jLen = 5;
+    const jLen = 3s;
     for (let j = 0; j < jLen; j += 1) {
       const f = Circle1.getUniLocation(MVP_MATRIX);
       GLClass.updateRendering(Circle1);

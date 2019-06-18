@@ -9,7 +9,10 @@ varying   vec4 vColor;
 
 void main(void){
     vPosition   = (mMatrix * vec4(position, 1.0)).xyz;
+
+    // vertexの時点は初期化なのでノーマライズと色をこの地点で決める
     vNormal     = normal;
     vColor      = color;
+
     gl_Position = mvpMatrix * vec4(position, 1.0);
 }
