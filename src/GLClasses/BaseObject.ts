@@ -1,24 +1,29 @@
-import { IVBOSetting, IIBOSetting, IUniLocation } from '../constants/interfaces';
+import {
+  IVBOSetting,
+  IIBOSetting,
+  IUniLocation,
+} from '../constants/interfaces';
+import Errors from '../util/Errors';
 
 export default class BaseObject {
-  private vbo: IVBOSetting[] = [];
+  private vbo: Map<string, IVBOSetting>;
 
   private ibo?: IIBOSetting;
 
-  private uniLocaiton: IUniLocation[] = [];
-
-  private locationIndexMap:{ [key: string]: number; } = {};
+  private uniLocaiton: Map<string, IUniLocation>;
 
   private iboDataLength = 0;
 
   public name: string;
 
   constructor(name: string) {
+    this.vbo = new Map();
+    this.uniLocaiton = new Map();
     this.name = name;
   }
 
-  addVBO(vbo: IVBOSetting) {
-    this.vbo.push(vbo);
+  addVBO(name: string, vbo: IVBOSetting) {
+    this.vbo.set(name, vbo);
   }
 
   setIBO(ibo: number[]) {
@@ -29,8 +34,31 @@ export default class BaseObject {
     this.iboDataLength = ibo.length;
   }
 
-  getVBOList() {
+  bindIBOBuffer(buffer: WebGLBuffer) {
+    if (this.ibo == null) {
+      return;
+    }
+    this.ibo.buffer = buffer;
+  }
+
+  getVBOMap() {
     return this.vbo;
+  }
+
+  bindVBOLocation(name: string, location: number) {
+    const vbo = this.vbo.get(name);
+    if (vbo == null) return;
+    vbo.location = location;
+  }
+
+  getVBO(name: string): IVBOSetting | undefined {
+    return this.vbo.get(name);
+  }
+
+  bindVBOBuffer(name: string, buffer: WebGLBuffer) {
+    const vbo = this.vbo.get(name);
+    if (vbo == null) throw Errors.nullPointer('vbo notfound');
+    vbo.buffer = buffer;
   }
 
   getIBODataLength() {
@@ -46,17 +74,17 @@ export default class BaseObject {
    * @returns - uni locationのIndex
    */
   addUniLocation(location: IUniLocation) {
-    this.uniLocaiton.push(location);
-    this.locationIndexMap[location.name] = this.uniLocaiton.length - 1;
+    this.uniLocaiton.set(location.name, location);
   }
 
-  getAllUniLocation(): IUniLocation[] {
+  bindUniLocation(name: string, location: number) {
+    const uniLocation = this.uniLocaiton.get(name);
+    if (uniLocation == null) throw Errors.nullPointer('nofound unilocation');
+    uniLocation.bind = location;
+    this.uniLocaiton.set(name, uniLocation);
+  }
+
+  getUniLocationMap(): Map<string, IUniLocation> {
     return this.uniLocaiton;
-  }
-
-  getUniLocation(name: string): IUniLocation {
-    const location = this.uniLocaiton[this.locationIndexMap[name]];
-    if (location == null) throw Error('notfound uni location');
-    return location;
   }
 }

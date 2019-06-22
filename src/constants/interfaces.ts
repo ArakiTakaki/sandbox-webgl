@@ -1,5 +1,5 @@
 import {
-  Matrix4x4, Float32Vector3, Float32Vector2, Float32Vector4, Matrix3x3, Matrix2x2,
+  Matrix4x4, Float32Vector3, Float32Vector2, Float32Vector4, Matrix3x3, Matrix2x2, Matrix,
 } from 'matrixgl';
 // eslint-disable-next-line import/no-cycle
 
@@ -13,16 +13,12 @@ export enum SHADER_TYPE {
   FRAGMENT = 'fragment',
 }
 
-export enum UNIFORM_TYPE {
-  VEC2 = 'VEC2',
-  VEC3 = 'VEC3',
-  VEC4 = 'VEC4',
-  MAT4 = 'MAT4',
-}
 export interface IVBOSetting {
   name: string;
   data: number[];
   size: number;
+  location: number;
+  buffer?: WebGLBuffer;
 }
 
 export interface IRenderObjectSetting {
@@ -34,20 +30,22 @@ export interface IRenderObjectSetting {
 export interface IIBOSetting {
   name: string;
   data: number[];
+  buffer?: WebGLBuffer;
 }
 
 export type TypeUniform =
-  | Matrix4x4
   | Float32Vector2
   | Float32Vector3
   | Float32Vector4
+  | Matrix
+  | Matrix2x2
   | Matrix3x3
-  | Matrix2x2;
+  | Matrix4x4;
 
 export interface IUniLocation {
   name: string;
-  type: UNIFORM_TYPE;
   location: TypeUniform;
+  bind?: number;
 }
 
 export interface ICacheShader {
@@ -66,8 +64,20 @@ export interface IAttribLocation {
 }
 
 export interface IUniLocationList {
-  id: string;
+  name: string;
   uniLocation: WebGLUniformLocation;
+  attLocation: number;
 }
 
-export default 'test';
+export interface IBaseSetting {
+  addVBO(vbo: IVBOSetting): void;
+  getVBO(name: string): IVBOSetting;
+  getVBOList(): IVBOSetting[];
+
+  setIBO(ibo: number[]): void;
+  getIBO(): IIBOSetting | undefined;
+  getIBODataLength():number;
+
+  addUniLocation(location: IUniLocation): void;
+  getAllUniLocation(): IUniLocation[];
+}
