@@ -28,13 +28,12 @@ square.setIBO([
 const POSITION = 'position';
 const main = () => {
   const { gl } = GLClass;
+  GLClass.createProgram(vertex, fragment);
+
   const position = square.getVBO(POSITION);
   const ibo = square.getIBO();
-  if (position == null || ibo == null) {
-    return;
-  }
+  if (position == null || ibo == null) return;
 
-  GLClass.createProgram(vertex, fragment);
   const iboBuffer = GLClass.createBuffer(ibo.data, BUFFER_TYPE.IBO);
   const location = GLClass.getAttribLocation(POSITION);
 
@@ -42,14 +41,12 @@ const main = () => {
   square.bindVBOLocation(POSITION, location);
   position.buffer = GLClass.createBuffer(position.data, BUFFER_TYPE.VBO);
 
-  if (position.buffer == null) {
-    return;
-  }
-
   GLClass.preRenderObject();
   GLClass.setAttribute(position.buffer, position.size, position.location);
+
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo.buffer);
   gl.drawElements(gl.TRIANGLES, ibo.data.length, gl.UNSIGNED_SHORT, 0);
+
   GLClass.flush();
 };
 
