@@ -8,10 +8,10 @@ export default () => {
   square2D.addVBO(POSITION, {
     name: POSITION,
     data: [
-      1, -1, 0,
-      1, 1, 0,
-      -1, 1, 0,
-      -1, -1, 0,
+      1, -1, 1,
+      1, 1, 1,
+      -1, 1, 1,
+      -1, -1, 1,
     ],
     vboLocation: -1,
     size: 3,
