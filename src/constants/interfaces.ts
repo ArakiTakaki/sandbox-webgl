@@ -17,7 +17,7 @@ export interface IVBOSetting {
   name: string;
   data: number[];
   size: number;
-  location: number;
+  vboLocation: number;
   buffer?: WebGLBuffer;
 }
 
@@ -44,9 +44,12 @@ export type TypeUniform =
 
 export interface IUniLocation {
   name: string;
-  location: TypeUniform;
-  bind?: number;
+  uniLocation: TypeUniform;
+  bind: WebGLUniformLocation | null;
 }
+
+export type IVBOMap = Map<string, IVBOSetting>;
+export type IUnilocationMap = Map<string, IUniLocation>;
 
 export interface ICacheShader {
   id: string;

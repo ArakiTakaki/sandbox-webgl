@@ -1,5 +1,9 @@
-import { BUFFER_TYPE, SHADER_TYPE } from '../constants/interfaces';
-import Errors from '../util/Errors';
+/* eslint-disable no-restricted-syntax */
+import { Float32Vector2, Float32Vector3, Float32Vector4 } from 'matrixgl';
+import {
+  BUFFER_TYPE, SHADER_TYPE, TypeUniform, IVBOMap, IUnilocationMap, IIBOSetting,
+} from '../../constants/interfaces';
+import Errors from '../../util/Errors';
 
 /* eslint-disable no-undef */
 /* eslint-disable no-bitwise */
@@ -38,10 +42,11 @@ export default class BaseGLClass {
     }
     this.gl = webgl;
     this.program = this.gl.createProgram();
+
     // カリングと深度テストを有効にする
-    // this.gl.enable(this.gl.DEPTH_TEST);
-    // this.gl.depthFunc(this.gl.LEQUAL);
-    // this.gl.enable(this.gl.CULL_FACE);
+    this.gl.enable(this.gl.DEPTH_TEST);
+    this.gl.depthFunc(this.gl.LEQUAL);
+    this.gl.enable(this.gl.CULL_FACE);
   }
 
   public createProgram(vertex: string, fragment: string) {
@@ -66,6 +71,23 @@ export default class BaseGLClass {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  public renderObject(vboMap: IVBOMap, uniLocationMap: IUnilocationMap, ibo: IIBOSetting) {
+    if (ibo.buffer == null) return;
+    for (const vbo of vboMap) {
+      if (vbo[1].buffer == null) return;
+      this.setAttribute(vbo[1].buffer, vbo[1].size, vbo[1].vboLocation);
+    }
+
+    for (const uniform of uniLocationMap) {
+      const { bind, uniLocation } = uniform[1];
+      this.setUniformLocation(bind, uniLocation);
+    }
+
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, ibo.buffer);
+    this.gl.drawElements(this.gl.TRIANGLES, ibo.data.length, this.gl.UNSIGNED_SHORT, 0);
+  }
+
   public flush() {
     this.gl.flush();
   }
@@ -74,6 +96,18 @@ export default class BaseGLClass {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo);
     this.gl.enableVertexAttribArray(location);
     this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, 0, 0);
+  }
+
+  public setUniformLocation(bind: WebGLUniformLocation | null, location: TypeUniform) {
+    if (location instanceof Float32Vector2) {
+      this.gl.uniform2fv(bind, location.values);
+    }
+    if (location instanceof Float32Vector3) {
+      this.gl.uniformMatrix3fv(bind, false, location.values);
+    }
+    if (location instanceof Float32Vector4) {
+      this.gl.uniformMatrix4fv(bind, false, location.values);
+    }
   }
 
   public drawObject(dataLength: number, size: number, type: BUFFER_TYPE) {
@@ -111,10 +145,10 @@ export default class BaseGLClass {
   public createShader(vertexSource: string, type: SHADER_TYPE): WebGLShader {
     let shader: WebGLShader | null;
     switch (type) {
-      case 'vertex':
+      case SHADER_TYPE.VERTEX:
         shader = this.gl.createShader(this.gl.VERTEX_SHADER);
         break;
-      case 'fragment':
+      case SHADER_TYPE.FRAGMENT:
         shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
         break;
       default:
@@ -134,5 +168,10 @@ export default class BaseGLClass {
   public getAttribLocation(name: string) {
     if (this.program == null) throw Error('null program');
     return this.gl.getAttribLocation(this.program, name);
+  }
+
+  public getUniLocation(uniLocationName: string) {
+    if (this.program == null) throw Error('null program');
+    return this.gl.getUniformLocation(this.program, uniLocationName);
   }
 }

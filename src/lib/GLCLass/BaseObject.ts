@@ -2,15 +2,18 @@ import {
   IVBOSetting,
   IIBOSetting,
   IUniLocation,
-} from '../constants/interfaces';
-import Errors from '../util/Errors';
+  IUnilocationMap,
+  // eslint-disable-next-line import/named
+  IVBOMap,
+} from '../../constants/interfaces';
+import Errors from '../../util/Errors';
 
 export default class BaseObject {
-  private vbo: Map<string, IVBOSetting>;
+  public vbo: IVBOMap;
 
-  private ibo?: IIBOSetting;
+  public ibo?: IIBOSetting;
 
-  private uniLocaiton: Map<string, IUniLocation>;
+  public uniLocaiton: IUnilocationMap;
 
   private iboDataLength = 0;
 
@@ -45,10 +48,10 @@ export default class BaseObject {
     return this.vbo;
   }
 
-  bindVBOLocation(name: string, location: number) {
+  bindVBOLocation(name: string, vboLocation: number) {
     const vbo = this.vbo.get(name);
     if (vbo == null) return;
-    vbo.location = location;
+    vbo.vboLocation = vboLocation;
   }
 
   getVBO(name: string): IVBOSetting | undefined {
@@ -77,14 +80,13 @@ export default class BaseObject {
     this.uniLocaiton.set(location.name, location);
   }
 
-  bindUniLocation(name: string, location: number) {
+  bindUniLocation(name: string, location: WebGLUniformLocation) {
     const uniLocation = this.uniLocaiton.get(name);
     if (uniLocation == null) throw Errors.nullPointer('nofound unilocation');
     uniLocation.bind = location;
-    this.uniLocaiton.set(name, uniLocation);
   }
 
-  getUniLocationMap(): Map<string, IUniLocation> {
+  getUniLocationMap() {
     return this.uniLocaiton;
   }
 }
