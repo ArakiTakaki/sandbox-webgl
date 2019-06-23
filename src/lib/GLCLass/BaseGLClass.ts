@@ -1,5 +1,7 @@
 /* eslint-disable no-restricted-syntax */
-import { Float32Vector2, Float32Vector3, Float32Vector4 } from 'matrixgl';
+import {
+  Float32Vector2, Float32Vector3, Float32Vector4, Matrix4x4, Matrix2x2,
+} from 'matrixgl';
 import {
   BUFFER_TYPE, SHADER_TYPE, TypeUniform, IVBOMap, IUnilocationMap, IIBOSetting,
 } from '../../constants/interfaces';
@@ -99,13 +101,16 @@ export default class BaseGLClass {
   }
 
   public setUniformLocation(bind: WebGLUniformLocation | null, location: TypeUniform) {
+    console.log(location);
     if (location instanceof Float32Vector2) {
       this.gl.uniform2fv(bind, location.values);
-    }
-    if (location instanceof Float32Vector3) {
-      this.gl.uniformMatrix3fv(bind, false, location.values);
-    }
-    if (location instanceof Float32Vector4) {
+    } else if (location instanceof Float32Vector3) {
+      this.gl.uniform3fv(bind, location.values);
+    } else if (location instanceof Float32Vector4) {
+      this.gl.uniform4fv(bind, location.values);
+    } else if (location instanceof Matrix2x2) {
+      this.gl.uniformMatrix2fv(bind, false, location.values);
+    } else if (location instanceof Matrix4x4) {
       this.gl.uniformMatrix4fv(bind, false, location.values);
     }
   }
