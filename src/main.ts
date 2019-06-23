@@ -10,4 +10,4 @@ const torus = TorusObject();
 const square3 = Square3D();
 
 const CanvasID = 'sample';
-Industrial([torus, square3], vertex, fragment, CanvasID);
+Industrial([torus], vertex, fragment, CanvasID);

@@ -36,19 +36,35 @@ export default () => {
 
   const mvpMatrix = {
     name: 'mvpMatrix',
-    uniLocation: Matrix4.identity().scale(0.1, 0.1, 0.1).translate(-2, -2, 0).rotateX(10),
+    uniLocation: Matrix4
+      .identity()
+      .scale(0.1, 0.1, 0.1)
+      .translate(-2, -2, 0)
+      .rotateX(10),
+    bind: null,
+  };
+
+  const mMatrix = {
+    name: 'mMatrix',
+    uniLocation: Matrix4
+      .identity()
+      .scale(0.1, 0.1, 0.1)
+      .translate(-2, -2, 0)
+      .rotateX(10),
     bind: null,
   };
 
   const invMatrix = {
     name: 'invMatrix',
-    uniLocation: Matrix4.identity().scale(0.1, 0.1, 0.1).translate(-2, -2, 0),
+    uniLocation: Matrix4
+      .identity()
+      .scale(0.1, 0.1, 0.1),
     bind: null,
   };
 
-  const lightDirection = {
-    name: 'lightDirection',
-    uniLocation: new Vector3(0.1, 0.1, 0.1),
+  const lightPosition = {
+    name: 'lightPosition',
+    uniLocation: new Vector3(0, 0, 0),
     bind: null,
   };
 
@@ -69,7 +85,6 @@ export default () => {
     mvpMatrix.uniLocation = mvpMatrix.uniLocation
       .rotateX(i)
       .rotateY(i);
-
     invMatrix.uniLocation = invMatrix.uniLocation
       .rotateX(-i)
       .rotateY(-i);
@@ -77,8 +92,9 @@ export default () => {
 
   square.addUniLocation(mvpMatrix);
   square.addUniLocation(invMatrix);
-  square.addUniLocation(lightDirection);
+  square.addUniLocation(lightPosition);
   square.addUniLocation(eyeDirection);
   square.addUniLocation(ambientColor);
+  square.addUniLocation(mMatrix);
   return square;
 };
