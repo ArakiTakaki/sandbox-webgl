@@ -27,21 +27,18 @@ square.setIBO([
   1, 3, 2,
 ]);
 
-const MOUSE = 'mouse';
-const MVP_MATRIX = 'mvpMatrix';
-const mouseLocation = new Float32Vector2(0.1, 0.1);
-const mvpMatrix = Matrix4.identity().scale(0.9, 0.9, 1);
-square.addUniLocation({
-  name: MVP_MATRIX,
-  uniLocation: mvpMatrix,
+const mvpMatrix = {
+  name: 'mvpMatrix',
+  uniLocation: Matrix4.identity().scale(0.9, 0.9, 1),
   bind: null,
-});
-
-square.addUniLocation({
-  name: MOUSE,
-  uniLocation: mouseLocation,
+};
+const mouse = {
+  name: 'mouse',
+  uniLocation: new Float32Vector2(0.5, 0.5),
   bind: null,
-});
+};
+square.addUniLocation(mvpMatrix);
+square.addUniLocation(mouse);
 
 const CanvasID = 'sample';
 Industrial(square, vertex, fragment, CanvasID);

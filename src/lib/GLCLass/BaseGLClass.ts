@@ -101,7 +101,6 @@ export default class BaseGLClass {
   }
 
   public setUniformLocation(bind: WebGLUniformLocation | null, location: TypeUniform) {
-    console.log(location);
     if (location instanceof Float32Vector2) {
       this.gl.uniform2fv(bind, location.values);
     } else if (location instanceof Float32Vector3) {

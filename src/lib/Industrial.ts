@@ -4,7 +4,7 @@
 import BaseObject from './GLCLass/BaseObject';
 import BaseGLClass from './GLCLass/BaseGLClass';
 import { BUFFER_TYPE } from '../constants/interfaces';
-import Errors from '~/util/Errors';
+import Errors from '../util/Errors';
 
 
 const Industrial = (baseObject: BaseObject, vertex: string, fragment: string, canvasID: string) => {
@@ -35,7 +35,6 @@ const Industrial = (baseObject: BaseObject, vertex: string, fragment: string, ca
   const uniLocationMap = baseObject.getUniLocationMap();
   for (const uniLocation of uniLocationMap) {
     const location = GLClass.getUniLocation(uniLocation[1].name);
-    console.log(uniLocation[1].name);
     if (location == null) throw Errors.nullPointer('initial uniform location of null');
     uniLocation[1].bind = location;
   }
@@ -45,7 +44,7 @@ const Industrial = (baseObject: BaseObject, vertex: string, fragment: string, ca
     GLClass.renderObject(vboMap, uniLocationMap, ibo);
     GLClass.flush();
     // eslint-disable-next-line no-undef
-    // window.requestAnimationFrame(render);
+    window.requestAnimationFrame(render);
   };
   render();
 };
