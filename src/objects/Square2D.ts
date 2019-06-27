@@ -1,6 +1,7 @@
 import { Matrix4, Float32Vector2 } from 'matrixgl';
 import BaseObject from '../lib/GLCLass/BaseObject';
 
+
 export default () => {
   const square2D = new BaseObject('square');
   const POSITION = 'position';

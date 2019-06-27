@@ -48,7 +48,7 @@ export default class BaseGLClass {
     // カリングと深度テストを有効にする
     this.gl.enable(this.gl.DEPTH_TEST);
     this.gl.depthFunc(this.gl.LEQUAL);
-    // this.gl.enable(this.gl.CULL_FACE);
+    this.gl.enable(this.gl.CULL_FACE);
   }
 
   public createProgram(vertex: string, fragment: string) {

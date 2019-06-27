@@ -1,14 +1,12 @@
-import {
-  Matrix4, Vector3, Vector4,
-} from 'matrixgl';
+import { Matrix4 } from 'matrixgl';
 import BaseObject from '../lib/GLCLass/BaseObject';
-import Sphere from '../objectGenerators/Sphere';
+import Circle2D from '../objectGenerators/Circle2D';
 
 export default () => {
   const square = new BaseObject('square');
   const {
     position, index, color, normal,
-  } = Sphere(40, 40, 2);
+  } = Circle2D(4, [2, 2, 10, 1]);
   const POSITION = 'position';
   const COLOR = 'color';
   const NORMAL = 'normal';
@@ -36,48 +34,26 @@ export default () => {
 
   const mvpMatrix = {
     name: 'mvpMatrix',
-    uniLocation: Matrix4.identity().scale(0.1, 0.1, 0.1).translate(2, 2, 0).rotateX(10),
-    bind: null,
-  };
-
-  const invMatrix = {
-    name: 'invMatrix',
-    uniLocation: Matrix4.identity().scale(0.1, 0.1, 0.1).translate(-2, -2, 0),
-    bind: null,
-  };
-
-  const lightDirection = {
-    name: 'lightDirection',
-    uniLocation: new Vector3(0.1, 0.1, 0.1),
-    bind: null,
-  };
-
-  const eyeDirection = {
-    name: 'eyeDirection',
-    uniLocation: new Vector3(0.1, 0.1, 0.1),
-    bind: null,
-  };
-
-  const ambientColor = {
-    name: 'ambientColor',
-    uniLocation: new Vector4(0.1, 0.1, 0.1, 0.1),
+    uniLocation: Matrix4
+      .identity()
+      .scale(0.4, 0.4, 0.1)
+      .translate(1, 1, 0),
     bind: null,
   };
 
   const i = 0.1;
   setInterval(() => {
     mvpMatrix.uniLocation = mvpMatrix.uniLocation
-      .rotateX(i)
-      .rotateY(i);
-    invMatrix.uniLocation = invMatrix.uniLocation
-      .rotateX(-i)
-      .rotateY(-i);
+      .rotateX(i * 2)
+      .rotateY(i)
+      .rotateZ(i / 2);
   }, 50);
 
   square.addUniLocation(mvpMatrix);
-  square.addUniLocation(invMatrix);
-  square.addUniLocation(lightDirection);
-  square.addUniLocation(eyeDirection);
-  square.addUniLocation(ambientColor);
+  // square.addUniLocation(invMatrix);
+  // square.addUniLocation(lightPosition);
+  // square.addUniLocation(eyeDirection);
+  // square.addUniLocation(ambientColor);
+  // square.addUniLocation(mMatrix);
   return square;
 };
