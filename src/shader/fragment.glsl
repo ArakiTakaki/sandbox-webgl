@@ -8,8 +8,6 @@ varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
 
-uniform vec2 mouse;
-
 void main(void){
     vec3  lightVec  = lightPosition - vPosition;
     vec3  invLight  = normalize(invMatrix * vec4(lightVec, 0.0)).xyz;
